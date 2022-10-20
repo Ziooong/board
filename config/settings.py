@@ -56,7 +56,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], #템플릿 위치로 따로 지정하고 싶을 때
+        'DIRS': [ os.path.join(BASE_DIR, 'templates') ], #템플릿 위치로 따로 지정하고 싶을 때
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
