@@ -5,6 +5,13 @@
   <div class="container text-center">
     <h1>글 작성이 완료되었습니다.</h1>
   </div>
+  <button onclick="move()" class="btn btn-warning input-lg">목록으로</button>
 </div>
+<script>
+  function move(){
+    //주소 이동
+    location = "/article/list/";
+  } 
+</script>
 
 {% endblock %}

@@ -12,11 +12,22 @@
   </div>
 </div>
 <div class="container text-right">
-  <a href='' class="btn btn-default" id="list">목록</a>
-  <a href='' class="btn btn-default" id="update">수정</a>
-  <a href='/article/delete/{{ article.id }}/' class="btn btn-default" id="delete">
+  <a href='/article/list/' class="btn btn-default" id="list">목록</a>
+  <a href='#' onclick="update()"" class="btn btn-default" id="update">수정</a>
+  <a href='#' onclick="del()" class="btn btn-default" id="delete">
     삭제
   </a>
 </div>
+
+<script>
+  function update() {
+    if(confirm("정말 수정하시겠습니까?"))
+    location = "/article/update/{{ article.id }}/";
+  } //자바스크립트는 onclick=""으로 연결
+  function del() {
+    if(confirm("정말 삭제하시겠습니까?"))
+    location = "/article/delete/{{ article.id }}/";
+  } //자바스크립트는 onclick=""으로 연결
+</script>
 
 {% endblock %}

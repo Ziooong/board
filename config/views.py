@@ -35,7 +35,8 @@ def signin(request):
     try:
       # select * from user where email=? and pwd=?
       user = User.objects.get(email=email, pwd=pwd)
-      request.session['email'] = email
+      request.session['email'] = email   #session값은 이메일에 대한 정보를 기억.
+      request.session['name'] = user.name
       return render(request, 'signin_success.html')
     except:
       return render(request, 'signin_fail.html')
@@ -68,11 +69,36 @@ def write(request):
 
   return render(request, 'write.html')
 
+
+from django.core.paginator import Paginator
+
 def list(request):
+  page = request.GET.get('page')  # url에 list/?page=1
+  
   # select * from article order by id desc
   article_list = Article.objects.order_by('-id')
+
+  p = Paginator(article_list, 10)
+  try:
+    page = int(page)    #숫자를 문자로 바꿔줘야 함. 그리고 왜 이 자리에 넣어야 하는가?
+    article_list = p.page(page)  # ?page=문자열 오류 없애는 방법
+  except:
+    page = 1
+    article_list = p.page(page)
+
+#Pagenation 
+# ex) 7page -> 1 / 183 -> 181
+# 10?? -> 11이기 때문에 (page - 1)을 함.
+  start_page = (page - 1) // 10 * 10 + 1  #pagenation 중 시작 페이지
+  end_page = start_page + 9  #pagenation 중 마지막 페이지
+
+  #전체 페이지 수가 end_page 보다 적다면
+  if p.num_pages < end_page:
+    end_page = p.num_pages
+
   context = { 
-    'article_list' : article_list 
+    'article_list' : article_list,
+    'page_info' : range(start_page, end_page + 1)
   }
   return render(request, 'list.html', context)
 
@@ -85,8 +111,20 @@ def detail(request, id):
   return render(request, 'detail.html', context)
 
 def update(request, id):
-  # select * from article where id = ?
+  # select * from article where id = ?  
   article = Article.objects.get(id=id)
+
+  #로그인한 사용자의 정보 확인
+  name = request.session.get('name')
+  #작성자명 확인
+  if article.user.name != name: #같지 않다.
+    # return HttpResponse('''
+    #     <script>
+    #       alert("작성자만 수정할 수 있습니다.");
+    #       location = "/article/detail/%s/";
+    #     </script>
+    #   ''' % id)
+    return render(request, 'update_fail.html', {'id':id})
 
   if request.method == 'POST':
     title = request.POST.get('title')
@@ -109,8 +147,20 @@ def update(request, id):
 def delete(request, id):
   try:
     # select * from article where id = ?
+    name = request.session['name']
     article = Article.objects.get(id=id)
-    article.delete()
+
+    if article.user.name == name:
+      article.delete()
+    else:
+      #delete_fail.html에 써 주는 것이 더 좋음
+      return HttpResponse('''
+        <script>
+          alert("작성자만 삭제할 수 있습니다.");
+          location = "/article/detail/%s/";
+        </script>
+      ''' % id)
+      
     return render(request, 'delete_success.html')
   except:
     return render(request, 'delete_fail.html')
