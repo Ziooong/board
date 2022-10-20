@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+  form > button:nth-of-type(2) {
+    background-color: mediumaquamarine;
+    border-color: mediumaquamarine;
+  }
+</style>
 
 <div class="jumbotron">
   <div class="container text-center">
@@ -14,8 +20,15 @@
         <input type="password" class="form-control" id="pwd" name="pwd">
       </div>
       <button class="btn btn-primary btn-block" id="signin">Sign in</button>
+      <button type="button" onclick="move()" class="btn btn-primary btn-block" id="signup">Sign up</button>
     </form>
+    <!--위 버튼은 회원가입하기 위해 form사용 action="signin" / 아래 버튼은 page만 signup으로 주려해서 type="button"줌.-->
   </div>
 </div>
 
+<script>
+  function move() {
+    location = "/signup/";
+  }
+</script>
 {% endblock %}
