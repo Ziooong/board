@@ -3,7 +3,7 @@
 
 <div class="jumbotron">
   <div class="container text-center">
-    <form method="post" action="/article/write/">
+    <form method="post" action="/article/write/" enctype="multipart/form-data"> <!--input에 multiple때문에 enctype 추가-->
       {% csrf_token %}
       <div class="form-group">
         <label for="title">Title:</label>
@@ -13,6 +13,8 @@
         <label for="content">Content:</label>
         <textarea class="form-control" rows="5" name="content" id="content"></textarea>
       </div>
+      <!--사진 업로드 기능-->
+      <input type="file" name="file" multiple accept="image/png,image/jpeg,image/*">
       <button type="submit" id="complete" class="btn btn-primary btn-block">
         글쓰기
       </button>

@@ -1,0 +1,22 @@
+<meta charset="utf8">
+<h1>이벤트~!</h1>
+<input type="checkbox"> 하루 열지 않기
+<button onclick="closePopup()">닫기</button>
+<script>
+    function setCookie(name, value, minute) {
+        const expire = new Date();
+        expire.setMinutes(expire.getMinutes() + minute);
+        document.cookie = `${name}=${value};expires=${expire.toGMTString()}`
+}
+    function closePopup() {
+        input = document.querySelector('[type=checkbox]')
+        // console.dir(input.checked)
+        if(input.checked) {
+            //쿠키에 값 저장 만료일자 +1일
+            setCookie('popup', 'etc', 60*24)
+        }
+
+        self.close()
+        // window.close()
+    }
+</script>

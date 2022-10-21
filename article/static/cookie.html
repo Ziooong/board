@@ -1,0 +1,48 @@
+<!--
+<script>
+    //자바스크립트 practice cookie
+    date = new Date()  //현재 시분초
+    date.setMonth(10) //11월
+    console.log(date.toGMTString())
+    // console.log(date.toString()) //우리나라 시간
+
+    result = document.cookie  
+    console.log(result)
+    
+    document.cookie = 'age=30;expires=' + date.toGMTString()   //값 넣을 때
+    document.cookie = 'address=seoul'
+    document.cookie = 'key2=value2;expires=Sun, 01 Jan 2040 00:00:00 GMT'; //만료일자
+
+    
+</script>
+-->
+
+
+<script>
+let cookie = document.cookie; //쿠키 볼 때
+console.log(cookie);
+console.log(new Date().toGMTString());
+
+function getCookie(name) {
+    const cookie = document.cookie;
+    
+    let startIdx = cookie.indexOf(name);
+    if(startIdx == -1) return;
+
+    let endIdx = cookie.indexOf(';', startIdx);
+    if(endIdx == -1) endIdx = cookie.length;
+    console.log(cookie.substring(startIdx + name.length + 1, endIdx));
+}
+
+function removeCookie(name) {
+    const expire = new Date(1970, 0, 1);
+    document.cookie = `${name}=1;expires=${expire.toGMTString()}`
+}
+
+function setCookie(name, value, minute) {
+    const expire = new Date();
+    expire.setMinutes(expire.getMinutes() + minute);
+    document.cookie = `${name}=${value};expires=${expire.toGMTString()}`
+}
+setCookie("popup", "none", 60*24)
+</script>

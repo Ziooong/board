@@ -1,0 +1,7 @@
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="abc">
+    <input type="file" name="abc">
+    <input type="file" name="xyz" multiple>
+    <button>업로드</button>
+    {% csrf_token %} <!--장고에서 보안을 위해 post방식에는 토큰이 꼭 필요. form 안에 넣어줘야 함!-->
+</form>

@@ -7,7 +7,9 @@
       {% csrf_token %}
       <div class="form-group">
         <label for="email">Email:</label>
-        <input type="text" class="form-control" id="email" name="email">
+        <input type="text" class="form-control" id="email" name="email"
+        onblur="check()">
+        <p id="check-result"></p>
       </div>
       <div class="form-group">
         <label for="pwd">Password:</label>
@@ -22,4 +24,22 @@
   </div>
 </div>
 
+<script>
+  function check() {
+    email = document.querySelector('#email').value
+    //AJAX - Axios, 표준기능 fetch
+  const ajax = fetch(
+    `http://127.0.0.1:8000/check/?email=${email}`
+    );
+
+  ajax.then(function(response) {
+    return response.text();
+  }).then(function(result) {
+    console.log(result);
+    document.querySelector('#check-result').innerText =result  //가입가능 or 가입불가
+  });
+  }
+  
+
+</script>
 {% endblock %}

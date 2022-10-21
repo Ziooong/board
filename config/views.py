@@ -1,25 +1,40 @@
+from msilib.schema import File
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 import hashlib
+from article.models import User
+
+#AJAX 가입가능 이메일인지 확인
+def check(request):
+  email = request.GET.get('email')
+  try:
+    User.objects.get(email=email)
+  except:
+    return HttpResponse("가입 가능")
+  return HttpResponse("가입 불가")
 
 def index(request):
-  # m = hashlib.sha256()
-  # m.update(b"testtest")
-  # print( m.hexdigest() )
-  # s = '37268335dd6931045bdcdf92623ff819a64244b53d0e746d438797349d4da578'
-  # print( len(s) )
+  #비밀번호 암호화
+  m = hashlib.sha256()   #hash알고리즘
+  m.update(b"1")
+  print( m.hexdigest() )
+
   return render(request, 'index.html')
 
 from django.http import HttpResponseRedirect
-from article.models import Reply, User
 
 def signup(request):
   if request.method == 'POST':
     # 회원정보 저장
     email = request.POST.get('email')
     name = request.POST.get('name')
+
     pwd = request.POST.get('pwd')
+    m = hashlib.sha256()   #hash알고리즘
+    m.update(bytes(pwd, 'utf-8'))
+    pwd =  m.hexdigest()
+
     user = User(email=email, name=name, pwd=pwd)
     user.save()
     return HttpResponseRedirect('/index/')
@@ -31,6 +46,9 @@ def signin(request):
     # 회원정보 조회
     email = request.POST.get('email')
     pwd = request.POST.get('pwd')
+    m = hashlib.sha256()   #hash알고리즘
+    m.update(bytes(pwd, 'utf-8'))
+    pwd = m.hexdigest()
     
     try:
       # select * from user where email=? and pwd=?
@@ -50,6 +68,56 @@ def signout(request):
   return HttpResponseRedirect('/index/')
 
 from article.models import Article
+from article.models import Reply, User, File, FileAtch
+
+import os, time
+def upload(request):
+  if request.method == 'POST':
+    file = request.FILES.getlist('abc') #여러개 받을땐 list
+    for f in file:
+      name = f.name
+      size = f.size
+      save_name = name
+
+      if os.path.isfile('c:/django/%s' % name):
+        #중복파일이 존재하므로 파일명 변경하기
+        #ex) abc.jpg -> abc_123124234.jpg
+        n = name[ 0 : name.find('.')]
+        ext = name[ name.find('.') : ] #extention
+        save_name = '%s_%s%s' % (n, time.time(), ext)  #time.time() 유닉스타임 사용.
+
+      #업로드된 파일 저장
+      u_file = open('c:/django/%s' % save_name, 'wb')
+      for chunk in file[0].chunks():
+        u_file.write(chunk)
+      u_file.close()
+
+      File(s_filename=save_name, o_filename=name, filesize=size).save()
+
+    #이거 쓰셈.
+    file2 = request.FILES.getlist('xyz')
+    for f in file2:
+      print(f.name, f.size)
+    #고객들에게 출력(보여줄 것)
+    return HttpResponse(
+      '%s %s' % (name,size))
+
+  return render(request, 'upload.html', {})
+
+def download(request): #http//127.0.0.1:8000/download/?id=1
+  id = request.GET.get('id')
+  # article = Article.objects.get(id=id)
+  file_atch = FileAtch.objects.get(id=id)
+
+  filename = file_atch.s_filename
+
+  file = open('c:/django/%s' % filename, 'rb')
+  res = HttpResponse(
+    file,
+    content_type='application/octet-stream')
+    # content_type='image/jpg')
+  res['Content-Disposition'] = 'attachment; filename=%s' % filename
+  return res
 
 def write(request):
   if request.method == 'POST':
@@ -63,12 +131,35 @@ def write(request):
       # insert into article (title, content, user_id) values (?, ?, ?)
       article = Article(title=title, content=content, user=user)
       article.save()
+
+      #파일 업로드 위치
+      file = request.FILES.getlist('file') #여러개 받을땐 list
+      for f in file:
+        name = f.name
+        size = f.size
+        save_name = name
+        print(size)
+
+        if os.path.isfile('c:/django/%s' % name):
+          #중복파일이 존재하므로 파일명 변경하기
+          #ex) abc.jpg -> abc_123124234.jpg
+          n = name[ 0 : name.find('.')]
+          ext = name[ name.find('.') : ] #extention
+          save_name = '%s_%s%s' % (n, time.time(), ext)  #time.time() 유닉스타임 사용.
+
+        #업로드된 파일 저장
+        u_file = open('c:/django/%s' % save_name, 'wb')
+        for chunk in f.chunks():
+          u_file.write(chunk)
+        u_file.close()
+
+        FileAtch(s_filename=save_name, o_filename=name, filesize=size, article=article).save()
+
       return render(request, 'write_success.html')
     except:
       return render(request, 'write_fail.html')
 
   return render(request, 'write.html')
-
 
 from django.core.paginator import Paginator
 
@@ -85,6 +176,13 @@ def list(request):
   except:
     page = 1
     article_list = p.page(page)
+
+  #리스트>넘버링
+  # print('-'*20)
+  # print(article_list.start_index())
+  # s = article_list.count() - article_list.start_index() + 1
+  # e = s - 
+
 
 #Pagenation 
 # ex) 7page -> 1 / 183 -> 181
