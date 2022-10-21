@@ -148,7 +148,7 @@ def update(request, id):
 def delete(request, id):
   try:
     # select * from article where id = ?
-    name = request.session['name']
+    name = request.session['name']  #이름은 절대 안됨. 동명이인은?
     article = Article.objects.get(id=id)
 
     if article.user.name == name:
